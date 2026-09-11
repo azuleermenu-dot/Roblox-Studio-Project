@@ -7,6 +7,10 @@ local Data = require(script.Parent.Services.PlayerDataService)
 local Mining = require(script.Parent.Services.MiningService)
 local Upgrades = require(script.Parent.Services.UpgradeService)
 local Pets = require(script.Parent.Services.PetService)
+local MapBuilder = require(script.Parent.Services.MapBuilder)
+
+-- Build the complete starter world on the server so clients cannot authoritatively change map state.
+local map = MapBuilder.Build()
 
 local remotes = ReplicatedStorage:FindFirstChild("Remotes") or Instance.new("Folder")
 remotes.Name = "Remotes"
@@ -47,16 +51,17 @@ local function makeEgg(name, position)
     return egg
 end
 
-makeEgg("BasicEgg", Vector3.new(0, 4, -12))
-makeEgg("CrystalEgg", Vector3.new(10, 4, -12))
-makeEgg("GoldenEgg", Vector3.new(-10, 4, -12))
+-- Mining targets stay separate from the decorative world geometry.
+makeEgg("BasicEgg", Vector3.new(-24, 5, 105))
+makeEgg("CrystalEgg", Vector3.new(0, 5, 108))
+makeEgg("GoldenEgg", Vector3.new(24, 5, 105))
 
-local sell = workspace:FindFirstChild("SellArea")
+local sell = workspace:FindFirstChild("SellArea") or map:FindFirstChild("SellArea")
 if not sell then
     sell = Instance.new("Part")
     sell.Name = "SellArea"
     sell.Size = Vector3.new(12, 1, 12)
-    sell.Position = Vector3.new(0, 0.5, 12)
+    sell.Position = Vector3.new(-25, 2, -15)
     sell.Anchored = true
     sell.Material = Enum.Material.Neon
     sell.Parent = workspace
