@@ -21,7 +21,8 @@
         "PlayerDataService": {"$path": "src/ServerScriptService/Services/PlayerDataService.luau"},
         "MiningService": {"$path": "src/ServerScriptService/Services/MiningService.luau"},
         "UpgradeService": {"$path": "src/ServerScriptService/Services/UpgradeService.luau"},
-        "PetService": {"$path": "src/ServerScriptService/Services/PetService.luau"}
+        "PetService": {"$path": "src/ServerScriptService/Services/PetService.luau"},
+        "MapBuilder": {"$path": "src/ServerScriptService/Services/MapBuilder.luau"}
       },
       "Main": {"$path": "src/ServerScriptService/Main.server.luau"}
     },
