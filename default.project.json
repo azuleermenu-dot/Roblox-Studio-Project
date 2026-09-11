@@ -1,0 +1,41 @@
+{
+  "name": "EggMinerSimulator",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Remotes": {
+        "$className": "Folder"
+      },
+      "Shared": {
+        "$className": "Folder",
+        "GameConfig": {
+          "$path": "src/ReplicatedStorage/Shared/GameConfig.luau"
+        }
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Services": {
+        "$className": "Folder",
+        "PlayerDataService": {"$path": "src/ServerScriptService/Services/PlayerDataService.luau"},
+        "MiningService": {"$path": "src/ServerScriptService/Services/MiningService.luau"},
+        "UpgradeService": {"$path": "src/ServerScriptService/Services/UpgradeService.luau"},
+        "PetService": {"$path": "src/ServerScriptService/Services/PetService.luau"}
+      },
+      "Main": {"$path": "src/ServerScriptService/Main.server.luau"}
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "GameClient": {"$path": "src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau"}
+      }
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "PetModels": {"$className": "Folder"}
+    },
+    "Workspace": {"$className": "Workspace"}
+  }
+}
