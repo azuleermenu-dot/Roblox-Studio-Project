@@ -13,11 +13,12 @@
         "PetService":{"$path":"src/ServerScriptService/Services/PetService.luau"},
         "EggService":{"$path":"src/ServerScriptService/Services/EggService.luau"},
         "EggSpawner":{"$path":"src/ServerScriptService/Services/EggSpawner.luau"},
+        "CombatService":{"$path":"src/ServerScriptService/Services/CombatService.luau"},
         "MapBuilder":{"$path":"src/ServerScriptService/Services/MapBuilder.luau"}
       },
       "Main":{"$path":"src/ServerScriptService/Main.server.luau"}
     },
-    "StarterPlayer":{"$className":"StarterPlayer","StarterPlayerScripts":{"$className":"StarterPlayerScripts","GameClient":{"$path":"src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau"},"AnimationClient":{"$path":"src/StarterPlayer/StarterPlayerScripts/AnimationClient.client.luau"}}},
+    "StarterPlayer":{"$className":"StarterPlayer","StarterPlayerScripts":{"$className":"StarterPlayerScripts","GameClient":{"$path":"src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau"},"AnimationClient":{"$path":"src/StarterPlayer/StarterPlayerScripts/AnimationClient.client.luau"},"CombatVisual":{"$path":"src/StarterPlayer/StarterPlayerScripts/CombatVisual.client.luau"}}},
     "ServerStorage":{"$className":"ServerStorage","PetModels":{"$className":"Folder"}},
     "Workspace":{"$className":"Workspace"}
   }
