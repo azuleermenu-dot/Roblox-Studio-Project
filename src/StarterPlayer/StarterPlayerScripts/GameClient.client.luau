@@ -26,5 +26,10 @@ sell.Activated:Connect(function() Sell:FireServer() end); upgrade.Activated:Conn
 State.OnClientEvent:Connect(function(s)
  coins.Text="Coins: "..tostring(s.Coins or 0); bag.Text="Backpack: "..tostring(s.BackpackAmount or 0).."/"..tostring(s.BackpackCapacity or 0); pet.Text=string.format("Pets: x%.2f",tonumber(s.PetMultiplier) or 1); carry.Text=s.Carrying and "Egg: CARRYING 🥚" or "Egg: NONE"; upgrade.Text="UPGRADE "..tostring(s.Pickaxe or "Wooden"); Anim.UpdatePets(s.EquippedPets)
 end)
-Notice.OnClientEvent:Connect(function(t) notify(t); if string.find(t,"Hatched ",1,true) then Anim.HatchFX() end end)
+Notice.OnClientEvent:Connect(function(t,petData)
+ notify(t)
+ if string.find(t,"Hatched ",1,true) then
+  Anim.HatchCinematic(petData)
+ end
+end)
 task.defer(function() RequestState:FireServer() end)
