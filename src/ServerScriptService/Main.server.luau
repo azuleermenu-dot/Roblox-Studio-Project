@@ -29,10 +29,10 @@ if #eggs:GetChildren()==0 then
  egg("BasicEgg",Vector3.new(-24,6,105),Color3.fromRGB(245,245,245)); egg("CrystalEgg",Vector3.new(0,6,108),Color3.fromRGB(100,220,255)); egg("GoldenEgg",Vector3.new(24,6,105),Color3.fromRGB(255,205,60)); egg("DesertEgg",Vector3.new(0,6,195),Color3.fromRGB(220,160,70)); egg("IceEgg",Vector3.new(0,6,285),Color3.fromRGB(170,235,255)); egg("VolcanoEgg",Vector3.new(0,6,375),Color3.fromRGB(235,90,45))
 end
 local sell=workspace:FindFirstChild("SellArea") or map:FindFirstChild("SellArea")
-local hatchPad=Instance.new("Part"); hatchPad.Name="HatchPad"; hatchPad.Size=Vector3.new(14,1,14); hatchPad.Position=Vector3.new(25,2,-10); hatchPad.Anchored=true; hatchPad.Material=Enum.Material.Neon; hatchPad.Color=Color3.fromRGB(160,90,255); hatchPad.Parent=workspace
+local hatchPad=workspace:FindFirstChild("HatchPad") or Instance.new("Part"); hatchPad.Name="HatchPad"; hatchPad.Size=Vector3.new(14,1,14); hatchPad.Position=Vector3.new(25,2,-10); hatchPad.Anchored=true; hatchPad.Material=Enum.Material.Neon; hatchPad.Color=Color3.fromRGB(160,90,255); hatchPad.Parent=workspace
 local function sync(p)
  local d=Data.Get(p); if not d then return end
- State:FireClient(p,{Coins=d.Coins,BackpackAmount=d.BackpackAmount,BackpackCapacity=d.BackpackCapacity,Pickaxe=d.Pickaxe,PetMultiplier=Pets.GetMultiplier(p),PetCount=#d.Pets,Carrying=Eggs.IsCarrying(p)})
+ State:FireClient(p,{Coins=d.Coins,BackpackAmount=d.BackpackAmount,BackpackCapacity=d.BackpackCapacity,Pickaxe=d.Pickaxe,PetMultiplier=Pets.GetMultiplier(p),PetCount=#d.Pets,Carrying=Eggs.IsCarrying(p),EquippedPets=d.EquippedPets})
 end
 local function leader(p) local f=Instance.new("Folder"); f.Name="leaderstats"; f.Parent=p; local c=Instance.new("IntValue"); c.Name="Coins"; c.Parent=f; task.spawn(function() while p.Parent do local d=Data.Get(p); if d then c.Value=d.Coins end task.wait(1) end end) end
 Players.PlayerAdded:Connect(function(p) Data.Load(p); leader(p); sync(p) end)
