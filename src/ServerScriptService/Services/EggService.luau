@@ -47,7 +47,7 @@ function Service.Steal(victim, thief)
     if not state or carrying[thief] then return false,"Steal failed" end
     local tr=root(thief)
     local vr=root(victim)
-    if not tr or not vr or (tr.Position-vr.Position)>Config.Combat.HitRange + 2 then return false,"Too far away" end
+    if not tr or not vr or (tr.Position-vr.Position).Magnitude>Config.Combat.HitRange + 2 then return false,"Too far away" end
 
     local oldCarried=victim.Character and victim.Character:FindFirstChild("CarriedEgg")
     if oldCarried then oldCarried:Destroy() end
