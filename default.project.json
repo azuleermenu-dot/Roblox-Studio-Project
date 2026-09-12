@@ -4,14 +4,10 @@
     "$className": "DataModel",
     "ReplicatedStorage": {
       "$className": "ReplicatedStorage",
-      "Remotes": {
-        "$className": "Folder"
-      },
+      "Remotes": {"$className": "Folder"},
       "Shared": {
         "$className": "Folder",
-        "GameConfig": {
-          "$path": "src/ReplicatedStorage/Shared/GameConfig.luau"
-        }
+        "GameConfig": {"$path": "src/ReplicatedStorage/Shared/GameConfig.luau"}
       }
     },
     "ServerScriptService": {
@@ -22,6 +18,7 @@
         "MiningService": {"$path": "src/ServerScriptService/Services/MiningService.luau"},
         "UpgradeService": {"$path": "src/ServerScriptService/Services/UpgradeService.luau"},
         "PetService": {"$path": "src/ServerScriptService/Services/PetService.luau"},
+        "EggService": {"$path": "src/ServerScriptService/Services/EggService.luau"},
         "MapBuilder": {"$path": "src/ServerScriptService/Services/MapBuilder.luau"}
       },
       "Main": {"$path": "src/ServerScriptService/Main.server.luau"}
@@ -30,7 +27,8 @@
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "GameClient": {"$path": "src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau"}
+        "GameClient": {"$path": "src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau"},
+        "AnimationClient": {"$path": "src/StarterPlayer/StarterPlayerScripts/AnimationClient.client.luau"}
       }
     },
     "ServerStorage": {
