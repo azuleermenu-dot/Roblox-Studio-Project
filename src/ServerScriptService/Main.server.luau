@@ -29,6 +29,14 @@ local function sync(p)
  State:FireClient(p,{Coins=d.Coins,BackpackAmount=d.BackpackAmount,BackpackCapacity=d.BackpackCapacity,Pickaxe=d.Pickaxe,PetMultiplier=Pets.GetMultiplier(p),PetCount=#d.Pets,Carrying=Eggs.IsCarrying(p),EquippedPets=d.EquippedPets})
 end
 local function leader(p) local f=Instance.new("Folder"); f.Name="leaderstats"; f.Parent=p; local c=Instance.new("IntValue"); c.Name="Coins"; c.Parent=f; task.spawn(function() while p.Parent do local d=Data.Get(p); if d then c.Value=d.Coins end task.wait(1) end end) end
+EggSpawner.EggSpawned.Event:Connect(function(egg,zoneName,rarity,isRespawn)
+ if not isRespawn then return end
+ if rarity=="Legendary" or rarity=="Mythic" then
+  local prefix=rarity=="Mythic" and "🔥 MYTHIC EGG" or "✨ LEGENDARY EGG"
+  local zoneText=zoneName and (" in "..zoneName) or ""
+  for _,player in ipairs(Players:GetPlayers()) do Notice:FireClient(player,prefix.." HAS SPAWNED"..zoneText.."! Find it before someone else does!") end
+ end
+end)
 EggSpawner.Initialize()
 Players.PlayerAdded:Connect(function(p) Data.Load(p); leader(p); task.delay(1,sync,p) end)
 Players.PlayerRemoving:Connect(function(p) Data.Release(p) end)
