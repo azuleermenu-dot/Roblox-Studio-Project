@@ -10,7 +10,7 @@ local MapBuilder=require(script.Parent.Services.MapBuilder)
 local map=MapBuilder.Build()
 local remotes=ReplicatedStorage:FindFirstChild("Remotes") or Instance.new("Folder"); remotes.Name="Remotes"; remotes.Parent=ReplicatedStorage
 local function remote(n) local r=remotes:FindFirstChild(n) or Instance.new("RemoteEvent"); r.Name=n; r.Parent=remotes; return r end
-local Mine=remote("MineResource"); local Sell=remote("Sell"); local Upgrade=remote("UpgradePickaxe"); local TakeEgg=remote("TakeEgg"); local Hatch=remote("HatchCarriedEgg"); local State=remote("StateUpdate"); local Notice=remote("Notification")
+local Mine=remote("MineResource"); local Sell=remote("Sell"); local Upgrade=remote("UpgradePickaxe"); local TakeEgg=remote("TakeEgg"); local Hatch=remote("HatchCarriedEgg"); local State=remote("StateUpdate"); local Notice=remote("Notification"); local RequestState=remote("RequestState")
 local resources=workspace:FindFirstChild("MiningResources") or Instance.new("Folder"); resources.Name="MiningResources"; resources.Parent=workspace
 local eggs=workspace:FindFirstChild("StealEggs") or Instance.new("Folder"); eggs.Name="StealEggs"; eggs.Parent=workspace
 local function node(name,pos,color,material)
@@ -35,8 +35,9 @@ local function sync(p)
  State:FireClient(p,{Coins=d.Coins,BackpackAmount=d.BackpackAmount,BackpackCapacity=d.BackpackCapacity,Pickaxe=d.Pickaxe,PetMultiplier=Pets.GetMultiplier(p),PetCount=#d.Pets,Carrying=Eggs.IsCarrying(p),EquippedPets=d.EquippedPets})
 end
 local function leader(p) local f=Instance.new("Folder"); f.Name="leaderstats"; f.Parent=p; local c=Instance.new("IntValue"); c.Name="Coins"; c.Parent=f; task.spawn(function() while p.Parent do local d=Data.Get(p); if d then c.Value=d.Coins end task.wait(1) end end) end
-Players.PlayerAdded:Connect(function(p) Data.Load(p); leader(p); sync(p) end)
+Players.PlayerAdded:Connect(function(p) Data.Load(p); leader(p); task.delay(1,sync,p) end)
 Players.PlayerRemoving:Connect(function(p) Data.Release(p) end)
+RequestState.OnServerEvent:Connect(function(p) sync(p) end)
 Mine.OnServerEvent:Connect(function(p,t) if Mining.Mine(p,t) then sync(p) end end)
 Sell.OnServerEvent:Connect(function(p) local d=Data.Get(p); local r=p.Character and p.Character:FindFirstChild("HumanoidRootPart"); if not d or not r or not sell or (r.Position-sell.Position).Magnitude>18 or d.BackpackAmount<=0 then return end; d.Coins+=d.BackpackAmount*Config.SellMultiplier; d.BackpackAmount=0; Data.MarkDirty(p); sync(p); Notice:FireClient(p,"Sold! +coins") end)
 Upgrade.OnServerEvent:Connect(function(p) local ok,res=Upgrades.Upgrade(p); if ok then sync(p); Notice:FireClient(p,"Upgraded to "..res.." Pickaxe!") else Notice:FireClient(p,res) end end)
