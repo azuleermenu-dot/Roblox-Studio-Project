@@ -5,7 +5,7 @@ Config.StartingCoins = 0
 Config.StartingBackpack = 25
 Config.StartingPickaxe = "Wooden"
 Config.SellMultiplier = 1
-Config.HatchCost = 500
+Config.HatchCost = 0
 Config.MaxEquippedPets = 3
 Config.MiningCooldown = 0.12
 Config.AutosaveSeconds = 60
@@ -18,23 +18,48 @@ Config.Pickaxes = {
     Diamond = {Power = 35, Capacity = 500, Cost = 10000},
 }
 
-Config.Eggs = {
-    BasicEgg = {MaxHealth = 25, Reward = 25, Hatchable = true},
-    CrystalEgg = {MaxHealth = 100, Reward = 150, Hatchable = true},
-    GoldenEgg = {MaxHealth = 500, Reward = 1000, Hatchable = true},
+Config.Resources = {
+    Stone = {MaxHealth = 20, Reward = 2, Zone = "Forest"},
+    Crystal = {MaxHealth = 45, Reward = 8, Zone = "Forest"},
+    DesertRock = {MaxHealth = 100, Reward = 20, Zone = "Desert"},
+    IceCrystal = {MaxHealth = 180, Reward = 45, Zone = "Ice"},
+    MagmaRock = {MaxHealth = 350, Reward = 100, Zone = "Volcano"},
 }
 
 Config.HatchEggs = {
-    BasicEgg = {
-        Cost = 500,
-        Pets = {
-            {Name="Tiny Mouse", Rarity="Common", Multiplier=1.2, Chance=60},
-            {Name="Blue Bunny", Rarity="Uncommon", Multiplier=1.5, Chance=25},
-            {Name="Crystal Fox", Rarity="Rare", Multiplier=2, Chance=10},
-            {Name="Golden Dragon", Rarity="Epic", Multiplier=4, Chance=4},
-            {Name="Cosmic Phoenix", Rarity="Legendary", Multiplier=10, Chance=1},
-        }
-    }
+    BasicEgg = {Pets = {
+        {Name="Tiny Mouse", Rarity="Common", Multiplier=1.2, Chance=60},
+        {Name="Blue Bunny", Rarity="Uncommon", Multiplier=1.5, Chance=25},
+        {Name="Crystal Fox", Rarity="Rare", Multiplier=2, Chance=10},
+        {Name="Golden Dragon", Rarity="Epic", Multiplier=4, Chance=4},
+        {Name="Cosmic Phoenix", Rarity="Legendary", Multiplier=10, Chance=1},
+    }},
+    CrystalEgg = {Pets = {
+        {Name="Crystal Bunny", Rarity="Uncommon", Multiplier=2, Chance=55},
+        {Name="Crystal Fox", Rarity="Rare", Multiplier=3, Chance=30},
+        {Name="Prism Dragon", Rarity="Epic", Multiplier=6, Chance=12},
+        {Name="Cosmic Phoenix", Rarity="Legendary", Multiplier=12, Chance=3},
+    }},
+    GoldenEgg = {Pets = {
+        {Name="Golden Bunny", Rarity="Rare", Multiplier=4, Chance=55},
+        {Name="Golden Dragon", Rarity="Epic", Multiplier=8, Chance=35},
+        {Name="Sun Phoenix", Rarity="Legendary", Multiplier=18, Chance=10},
+    }},
+    DesertEgg = {Pets = {
+        {Name="Sand Fox", Rarity="Uncommon", Multiplier=3, Chance=60},
+        {Name="Scarab", Rarity="Rare", Multiplier=5, Chance=30},
+        {Name="Golden Sphinx", Rarity="Epic", Multiplier=10, Chance=10},
+    }},
+    IceEgg = {Pets = {
+        {Name="Snow Bunny", Rarity="Rare", Multiplier=6, Chance=60},
+        {Name="Frost Fox", Rarity="Epic", Multiplier=12, Chance=30},
+        {Name="Ice Phoenix", Rarity="Legendary", Multiplier=25, Chance=10},
+    }},
+    VolcanoEgg = {Pets = {
+        {Name="Ember Cub", Rarity="Epic", Multiplier=15, Chance=60},
+        {Name="Magma Dragon", Rarity="Legendary", Multiplier=30, Chance=30},
+        {Name="Inferno Titan", Rarity="Mythic", Multiplier=60, Chance=10},
+    }},
 }
 
 return Config

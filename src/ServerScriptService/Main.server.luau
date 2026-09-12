@@ -1,166 +1,46 @@
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local ServerStorage = game:GetService("ServerStorage")
-
-local Config = require(ReplicatedStorage.Shared.GameConfig)
-local Data = require(script.Parent.Services.PlayerDataService)
-local Mining = require(script.Parent.Services.MiningService)
-local Upgrades = require(script.Parent.Services.UpgradeService)
-local Pets = require(script.Parent.Services.PetService)
-local MapBuilder = require(script.Parent.Services.MapBuilder)
-
--- Build the complete starter world on the server so clients cannot authoritatively change map state.
-local map = MapBuilder.Build()
-
-local remotes = ReplicatedStorage:FindFirstChild("Remotes") or Instance.new("Folder")
-remotes.Name = "Remotes"
-remotes.Parent = ReplicatedStorage
-
-local function remote(name)
-    local r = remotes:FindFirstChild(name) or Instance.new("RemoteEvent")
-    r.Name = name
-    r.Parent = remotes
-    return r
+local Players=game:GetService("Players")
+local ReplicatedStorage=game:GetService("ReplicatedStorage")
+local Config=require(ReplicatedStorage.Shared.GameConfig)
+local Data=require(script.Parent.Services.PlayerDataService)
+local Mining=require(script.Parent.Services.MiningService)
+local Upgrades=require(script.Parent.Services.UpgradeService)
+local Pets=require(script.Parent.Services.PetService)
+local Eggs=require(script.Parent.Services.EggService)
+local MapBuilder=require(script.Parent.Services.MapBuilder)
+local map=MapBuilder.Build()
+local remotes=ReplicatedStorage:FindFirstChild("Remotes") or Instance.new("Folder"); remotes.Name="Remotes"; remotes.Parent=ReplicatedStorage
+local function remote(n) local r=remotes:FindFirstChild(n) or Instance.new("RemoteEvent"); r.Name=n; r.Parent=remotes; return r end
+local Mine=remote("MineResource"); local Sell=remote("Sell"); local Upgrade=remote("UpgradePickaxe"); local TakeEgg=remote("TakeEgg"); local Hatch=remote("HatchCarriedEgg"); local State=remote("StateUpdate"); local Notice=remote("Notification")
+local resources=workspace:FindFirstChild("MiningResources") or Instance.new("Folder"); resources.Name="MiningResources"; resources.Parent=workspace
+local eggs=workspace:FindFirstChild("StealEggs") or Instance.new("Folder"); eggs.Name="StealEggs"; eggs.Parent=workspace
+local function node(name,pos,color,material)
+ local p=Instance.new("Part"); p.Name=name; p.Shape=Enum.PartType.Ball; p.Size=Vector3.new(7,6,7); p.Position=pos; p.Anchored=true; p.Color=color; p.Material=material or Enum.Material.Slate; p.Parent=resources; p:SetAttribute("Health",Config.Resources[name].MaxHealth)
 end
-
-local MineEgg = remote("MineEgg")
-local Sell = remote("Sell")
-local UpgradePickaxe = remote("UpgradePickaxe")
-local HatchEgg = remote("HatchEgg")
-local StateUpdate = remote("StateUpdate")
-local Notification = remote("Notification")
-
-local eggsFolder = workspace:FindFirstChild("Eggs") or Instance.new("Folder")
-eggsFolder.Name = "Eggs"
-eggsFolder.Parent = workspace
-
-local function makeEgg(name, position)
-    local egg = eggsFolder:FindFirstChild(name)
-    if not egg then
-        egg = Instance.new("Part")
-        egg.Name = name
-        egg.Shape = Enum.PartType.Ball
-        egg.Size = Vector3.new(6, 7, 6)
-        egg.Position = position
-        egg.Anchored = true
-        egg.Material = Enum.Material.SmoothPlastic
-        egg.Parent = eggsFolder
-    end
-    local cfg = Config.Eggs[name]
-    egg:SetAttribute("Health", tonumber(egg:GetAttribute("Health")) or cfg.MaxHealth)
-    return egg
+if #resources:GetChildren()==0 then
+ node("Stone",Vector3.new(-18,4,72),Color3.fromRGB(100,100,100)); node("Stone",Vector3.new(0,4,76),Color3.fromRGB(110,110,110)); node("Crystal",Vector3.new(18,5,72),Color3.fromRGB(80,180,255),Enum.Material.Neon)
+ node("DesertRock",Vector3.new(-18,4,162),Color3.fromRGB(170,130,75)); node("DesertRock",Vector3.new(18,4,170),Color3.fromRGB(190,145,80))
+ node("IceCrystal",Vector3.new(-16,5,252),Color3.fromRGB(160,230,255),Enum.Material.Ice); node("IceCrystal",Vector3.new(18,5,260),Color3.fromRGB(130,210,255),Enum.Material.Ice)
+ node("MagmaRock",Vector3.new(-18,5,342),Color3.fromRGB(70,45,40)); node("MagmaRock",Vector3.new(18,5,350),Color3.fromRGB(80,50,40))
 end
-
--- Mining targets stay separate from the decorative world geometry.
-makeEgg("BasicEgg", Vector3.new(-24, 5, 105))
-makeEgg("CrystalEgg", Vector3.new(0, 5, 108))
-makeEgg("GoldenEgg", Vector3.new(24, 5, 105))
-
-local sell = workspace:FindFirstChild("SellArea") or map:FindFirstChild("SellArea")
-if not sell then
-    sell = Instance.new("Part")
-    sell.Name = "SellArea"
-    sell.Size = Vector3.new(12, 1, 12)
-    sell.Position = Vector3.new(-25, 2, -15)
-    sell.Anchored = true
-    sell.Material = Enum.Material.Neon
-    sell.Parent = workspace
+local function egg(name,pos,color)
+ local e=Instance.new("Part"); e.Name=name; e.Shape=Enum.PartType.Ball; e.Size=Vector3.new(5,6,5); e.Position=pos; e.Anchored=true; e.Color=color; e.Material=Enum.Material.SmoothPlastic; e.Parent=eggs; e:SetAttribute("EggType",name); e:SetAttribute("Taken",false)
 end
-
-local function sync(player)
-    local d = Data.Get(player)
-    if not d then return end
-    StateUpdate:FireClient(player, {
-        Coins = d.Coins,
-        BackpackAmount = d.BackpackAmount,
-        BackpackCapacity = d.BackpackCapacity,
-        Pickaxe = d.Pickaxe,
-        PetMultiplier = Pets.GetMultiplier(player),
-        PetCount = #d.Pets,
-    })
+if #eggs:GetChildren()==0 then
+ egg("BasicEgg",Vector3.new(-24,6,105),Color3.fromRGB(245,245,245)); egg("CrystalEgg",Vector3.new(0,6,108),Color3.fromRGB(100,220,255)); egg("GoldenEgg",Vector3.new(24,6,105),Color3.fromRGB(255,205,60)); egg("DesertEgg",Vector3.new(0,6,195),Color3.fromRGB(220,160,70)); egg("IceEgg",Vector3.new(0,6,285),Color3.fromRGB(170,235,255)); egg("VolcanoEgg",Vector3.new(0,6,375),Color3.fromRGB(235,90,45))
 end
-
-local function setupLeaderstats(player)
-    local folder = Instance.new("Folder")
-    folder.Name = "leaderstats"
-    folder.Parent = player
-    local coins = Instance.new("IntValue")
-    coins.Name = "Coins"
-    coins.Parent = folder
-    task.spawn(function()
-        while player.Parent do
-            local d = Data.Get(player)
-            if d then coins.Value = d.Coins end
-            task.wait(1)
-        end
-    end)
+local sell=workspace:FindFirstChild("SellArea") or map:FindFirstChild("SellArea")
+local hatchPad=Instance.new("Part"); hatchPad.Name="HatchPad"; hatchPad.Size=Vector3.new(14,1,14); hatchPad.Position=Vector3.new(25,2,-10); hatchPad.Anchored=true; hatchPad.Material=Enum.Material.Neon; hatchPad.Color=Color3.fromRGB(160,90,255); hatchPad.Parent=workspace
+local function sync(p)
+ local d=Data.Get(p); if not d then return end
+ State:FireClient(p,{Coins=d.Coins,BackpackAmount=d.BackpackAmount,BackpackCapacity=d.BackpackCapacity,Pickaxe=d.Pickaxe,PetMultiplier=Pets.GetMultiplier(p),PetCount=#d.Pets,Carrying=Eggs.IsCarrying(p)})
 end
-
-Players.PlayerAdded:Connect(function(player)
-    Data.Load(player)
-    setupLeaderstats(player)
-    sync(player)
-end)
-
-Players.PlayerRemoving:Connect(function(player)
-    Data.Release(player)
-end)
-
-MineEgg.OnServerEvent:Connect(function(player, egg)
-    if Mining.Mine(player, egg) then sync(player) end
-end)
-
-Sell.OnServerEvent:Connect(function(player)
-    local d = Data.Get(player)
-    if not d then return end
-    local character = player.Character
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-    if not root or (root.Position - sell.Position).Magnitude > 18 then return end
-    if d.BackpackAmount <= 0 then return end
-    d.Coins += d.BackpackAmount * Config.SellMultiplier
-    d.BackpackAmount = 0
-    Data.MarkDirty(player)
-    sync(player)
-    Notification:FireClient(player, "Sold your backpack!")
-end)
-
-UpgradePickaxe.OnServerEvent:Connect(function(player)
-    local ok, result = Upgrades.Upgrade(player)
-    if ok then
-        sync(player)
-        Notification:FireClient(player, "Upgraded to " .. result .. " Pickaxe!")
-    else
-        Notification:FireClient(player, result)
-    end
-end)
-
-HatchEgg.OnServerEvent:Connect(function(player, eggName)
-    if eggName ~= "BasicEgg" then return end
-    local character = player.Character
-    local root = character and character:FindFirstChild("HumanoidRootPart")
-    local egg = eggsFolder:FindFirstChild(eggName)
-    if not root or not egg or (root.Position - egg.Position).Magnitude > 25 then return end
-    local pet, err = Pets.Hatch(player, eggName)
-    if pet then
-        sync(player)
-        Notification:FireClient(player, "Hatched " .. pet.Name .. " [" .. pet.Rarity .. "]!")
-    else
-        Notification:FireClient(player, err or "Could not hatch")
-    end
-end)
-
-task.spawn(function()
-    while true do
-        task.wait(Config.AutosaveSeconds)
-        for _, player in ipairs(Players:GetPlayers()) do
-            if Data.IsDirty(player) then Data.Save(player) end
-        end
-    end
-end)
-
-game:BindToClose(function()
-    for _, player in ipairs(Players:GetPlayers()) do
-        Data.Save(player)
-    end
-    task.wait(2)
-end)
+local function leader(p) local f=Instance.new("Folder"); f.Name="leaderstats"; f.Parent=p; local c=Instance.new("IntValue"); c.Name="Coins"; c.Parent=f; task.spawn(function() while p.Parent do local d=Data.Get(p); if d then c.Value=d.Coins end task.wait(1) end end) end
+Players.PlayerAdded:Connect(function(p) Data.Load(p); leader(p); sync(p) end)
+Players.PlayerRemoving:Connect(function(p) Data.Release(p) end)
+Mine.OnServerEvent:Connect(function(p,t) if Mining.Mine(p,t) then sync(p) end end)
+Sell.OnServerEvent:Connect(function(p) local d=Data.Get(p); local r=p.Character and p.Character:FindFirstChild("HumanoidRootPart"); if not d or not r or not sell or (r.Position-sell.Position).Magnitude>18 or d.BackpackAmount<=0 then return end; d.Coins+=d.BackpackAmount*Config.SellMultiplier; d.BackpackAmount=0; Data.MarkDirty(p); sync(p); Notice:FireClient(p,"Sold! +coins") end)
+Upgrade.OnServerEvent:Connect(function(p) local ok,res=Upgrades.Upgrade(p); if ok then sync(p); Notice:FireClient(p,"Upgraded to "..res.." Pickaxe!") else Notice:FireClient(p,res) end end)
+TakeEgg.OnServerEvent:Connect(function(p,e) local ok,res=Eggs.Take(p,e); if ok then sync(p); Notice:FireClient(p,"Egg secured! Bring it to the purple Hatch Pad.") else Notice:FireClient(p,res) end end)
+Hatch.OnServerEvent:Connect(function(p) local ok,res=Eggs.HatchAtBase(p,hatchPad); if ok then sync(p); Notice:FireClient(p,"Hatched "..res.Name.." ["..res.Rarity.."]! Pet bonus activated.") else Notice:FireClient(p,res) end end)
+task.spawn(function() while true do task.wait(Config.AutosaveSeconds); for _,p in ipairs(Players:GetPlayers()) do if Data.IsDirty(p) then Data.Save(p) end end end end)
+game:BindToClose(function() for _,p in ipairs(Players:GetPlayers()) do Data.Save(p) end; task.wait(2) end)
