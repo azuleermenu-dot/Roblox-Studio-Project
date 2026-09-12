@@ -8,6 +8,7 @@ local AnimationClient = {}
 local miningBusy = false
 local petFolder
 local petVisuals = {}
+local eggBases = {}
 
 local function getCharacter() return player.Character end
 local function getRoot() local c=getCharacter(); return c and c:FindFirstChild("HumanoidRootPart") end
@@ -68,7 +69,7 @@ local petColors={
 local function createPet(pet,index)
     local model=Instance.new("Model"); model.Name="Pet_"..index
     local body=Instance.new("Part"); body.Name="Body"; body.Shape=Enum.PartType.Ball; body.Size=Vector3.new(2.2,2.2,2.2); body.Color=petColors[pet.Name] or Color3.fromRGB(150,200,255); body.Material=Enum.Material.SmoothPlastic; body.Anchored=true; body.CanCollide=false; body.CanTouch=false; body.CanQuery=false; body.Parent=model
-    for _,x in ipairs({-1,1}) do local eye=Instance.new("Part"); eye.Shape=Enum.PartType.Ball; eye.Size=Vector3.new(.28,.28,.28); eye.Color=Color3.new(0,0,0); eye.Anchored=true; eye.CanCollide=false; eye.Parent=model; eye.Name="Eye"..x end
+    for n,x in ipairs({-.42,.42}) do local eye=Instance.new("Part"); eye.Name="Eye"..n; eye.Shape=Enum.PartType.Ball; eye.Size=Vector3.new(.28,.28,.28); eye.Color=Color3.new(0,0,0); eye.Anchored=true; eye.CanCollide=false; eye.CanTouch=false; eye.CanQuery=false; eye.CFrame=CFrame.new(x,.35,-.95); eye.Parent=model end
     local light=Instance.new("PointLight"); light.Range=5; light.Brightness=.6; light.Color=body.Color; light.Parent=body
     local label=Instance.new("BillboardGui"); label.Size=UDim2.fromOffset(130,28); label.StudsOffset=Vector3.new(0,1.8,0); label.AlwaysOnTop=true; label.Parent=body
     local text=Instance.new("TextLabel"); text.Size=UDim2.fromScale(1,1); text.BackgroundTransparency=1; text.Text=pet.Name; text.TextScaled=true; text.Font=Enum.Font.GothamBold; text.TextColor3=Color3.new(1,1,1); text.TextStrokeTransparency=.25; text.Parent=label
@@ -79,6 +80,22 @@ function AnimationClient.UpdatePets(pets)
     petFolder=Instance.new("Folder"); petFolder.Name="LocalPetFollowers"; petFolder.Parent=workspace; petVisuals={}
     if type(pets)~="table" then return end
     for i,pet in ipairs(pets) do if i>3 then break end; if type(pet)=="table" then petVisuals[i]=createPet(pet,i) end end
+end
+
+local function animateWorldEggs(t)
+    local eggs=workspace:FindFirstChild("StealEggs")
+    if not eggs then return end
+    for _,egg in ipairs(eggs:GetChildren()) do
+        if egg:IsA("BasePart") then
+            local base=eggBases[egg]
+            if not base then base=egg.CFrame; eggBases[egg]=base end
+            if egg.Transparency < .9 then
+                local phase=string.byte(string.sub(egg.Name,1,1)) or 1
+                local bob=math.sin(t*2.5+phase)*.28
+                egg.CFrame=base*CFrame.new(0,bob,0)*CFrame.Angles(0,t*.7+phase,0)
+            end
+        end
+    end
 end
 
 RunService.RenderStepped:Connect(function(dt)
@@ -97,6 +114,7 @@ RunService.RenderStepped:Connect(function(dt)
         local weld=carried:FindFirstChild("EggCarryWeld")
         if weld then weld.C0=CFrame.new(0,3.1+math.sin(t*4)*.18,-1.5)*CFrame.Angles(0,t*1.5,math.sin(t*3)*.08) end
     end
+    animateWorldEggs(t)
 end)
 player.CharacterAdded:Connect(function() task.wait(.5); ensurePickaxe() end)
 return AnimationClient
