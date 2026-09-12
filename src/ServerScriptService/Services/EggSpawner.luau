@@ -1,6 +1,5 @@
 local Workspace = game:GetService("Workspace")
 local TweenService = game:GetService("TweenService")
-local Config = require(game.ReplicatedStorage.Shared.GameConfig)
 
 local EggSpawner = {}
 local rng = Random.new()
@@ -9,10 +8,10 @@ local respawnQueued = {}
 
 local COLORS={BasicEgg=Color3.fromRGB(245,248,255),CrystalEgg=Color3.fromRGB(70,215,255),GoldenEgg=Color3.fromRGB(255,203,62),DesertEgg=Color3.fromRGB(255,145,65),IceEgg=Color3.fromRGB(130,220,255),VolcanoEgg=Color3.fromRGB(255,92,35)}
 local ZONES={
- Forest={types={"BasicEgg","CrystalEgg","GoldenEgg"},points={Vector3.new(-34,2,48),Vector3.new(-24,2,96),Vector3.new(-4,2,100),Vector3.new(20,2,94),Vector3.new(34,2,55),Vector3.new(28,2,76),Vector3.new(-30,2,74),Vector3.new(4,2,62)}},
- Desert={types={"DesertEgg"},points={Vector3.new(-32,2,137),Vector3.new(-8,2,145),Vector3.new(18,2,140),Vector3.new(34,2,157),Vector3.new(-28,2,176),Vector3.new(24,2,180),Vector3.new(4,2,165)}},
- Ice={types={"IceEgg"},points={Vector3.new(-34,2,228),Vector3.new(-12,2,238),Vector3.new(20,2,225),Vector3.new(34,2,248),Vector3.new(-28,2,266),Vector3.new(22,2,278),Vector3.new(4,2,255)}},
- Volcano={types={"VolcanoEgg"},points={Vector3.new(-34,2,318),Vector3.new(-12,2,326),Vector3.new(22,2,316),Vector3.new(34,2,340),Vector3.new(-28,2,360),Vector3.new(22,2,374),Vector3.new(4,2,348)}},
+ Forest={types={"BasicEgg","CrystalEgg","GoldenEgg"},points={Vector3.new(-34,1,48),Vector3.new(-24,1,96),Vector3.new(-4,1,100),Vector3.new(20,1,94),Vector3.new(34,1,55),Vector3.new(28,1,76),Vector3.new(-30,1,74),Vector3.new(4,1,62)}},
+ Desert={types={"DesertEgg"},points={Vector3.new(-32,1,137),Vector3.new(-8,1,145),Vector3.new(18,1,140),Vector3.new(34,1,157),Vector3.new(-28,1,176),Vector3.new(24,1,180),Vector3.new(4,1,165)}},
+ Ice={types={"IceEgg"},points={Vector3.new(-34,1,228),Vector3.new(-12,1,238),Vector3.new(20,1,225),Vector3.new(34,1,248),Vector3.new(-28,1,266),Vector3.new(22,1,278),Vector3.new(4,1,255)}},
+ Volcano={types={"VolcanoEgg"},points={Vector3.new(-34,1,318),Vector3.new(-12,1,326),Vector3.new(22,1,316),Vector3.new(34,1,340),Vector3.new(-28,1,360),Vector3.new(22,1,374),Vector3.new(4,1,348)}},
 }
 local ACTIVE_PER_ZONE=3
 local RESPAWN_MIN=5
@@ -28,7 +27,7 @@ local function chooseType(types)
  local roll=rng:NextNumber(); if roll<=.60 then return types[1] elseif roll<=.90 then return types[2] else return types[3] end
 end
 local function makeEgg(eggType,position,zoneName,pointIndex)
- local egg=Instance.new("Part"); egg.Name=eggType; egg.Shape=Enum.PartType.Ball; egg.Size=Vector3.new(3.4,4.3,3.4); egg.Position=position+Vector3.new(0,2.4,0); egg.Anchored=true; egg.CanCollide=false; egg.CanTouch=true; egg.CanQuery=true; egg.Material=Enum.Material.SmoothPlastic; egg.Color=COLORS[eggType] or Color3.new(1,1,1); egg:SetAttribute("EggType",eggType); egg:SetAttribute("Zone",zoneName); egg:SetAttribute("SpawnPoint",pointIndex); egg:SetAttribute("Taken",false); egg.Parent=getFolder()
+ local egg=Instance.new("Part"); egg.Name=eggType; egg.Shape=Enum.PartType.Ball; egg.Size=Vector3.new(3.4,4.3,3.4); egg.Position=position+Vector3.new(0,2.15,0); egg.Anchored=true; egg.CanCollide=false; egg.CanTouch=true; egg.CanQuery=true; egg.Material=Enum.Material.SmoothPlastic; egg.Color=COLORS[eggType] or Color3.new(1,1,1); egg:SetAttribute("EggType",eggType); egg:SetAttribute("Zone",zoneName); egg:SetAttribute("SpawnPoint",pointIndex); egg:SetAttribute("Taken",false); egg.Parent=getFolder()
  local stripe=Instance.new("Part"); stripe.Name="Stripe"; stripe.Shape=Enum.PartType.Cylinder; stripe.Size=Vector3.new(3.45,.55,3.45); stripe.CFrame=egg.CFrame*CFrame.new(0,-.1,0); stripe.Anchored=false; stripe.CanCollide=false; stripe.CanTouch=false; stripe.CanQuery=false; stripe.Massless=true; stripe.Material=Enum.Material.Neon; stripe.Color=egg.Color; stripe.Parent=egg
  local weld=Instance.new("WeldConstraint"); weld.Part0=egg; weld.Part1=stripe; weld.Parent=stripe
  local light=Instance.new("PointLight"); light.Name="EggGlow"; light.Color=egg.Color; light.Range=7; light.Brightness=.8; light.Parent=egg
