@@ -27,12 +27,11 @@ Config.Resources = {
 }
 
 Config.HatchEggs = {
+    -- Starter egg: intentionally limited to low-tier pets.
     BasicEgg = {Pets = {
-        {Name="Tiny Mouse", Rarity="Common", Multiplier=1.2, Chance=60},
+        {Name="Tiny Mouse", Rarity="Common", Multiplier=1.2, Chance=70},
         {Name="Blue Bunny", Rarity="Uncommon", Multiplier=1.5, Chance=25},
-        {Name="Crystal Fox", Rarity="Rare", Multiplier=2, Chance=10},
-        {Name="Golden Dragon", Rarity="Epic", Multiplier=4, Chance=4},
-        {Name="Cosmic Phoenix", Rarity="Legendary", Multiplier=10, Chance=1},
+        {Name="Crystal Fox", Rarity="Rare", Multiplier=2, Chance=5},
     }},
     CrystalEgg = {Pets = {
         {Name="Crystal Bunny", Rarity="Uncommon", Multiplier=2, Chance=55},
