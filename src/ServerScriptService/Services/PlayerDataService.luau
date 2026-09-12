@@ -9,15 +9,15 @@ local sessions = {}
 local dirty = {}
 
 local function defaultData()
-    local p = Config.Pickaxes[Config.StartingPickaxe]
     return {
         Coins = Config.StartingCoins,
         BackpackAmount = 0,
         BackpackCapacity = Config.StartingBackpack,
         Pickaxe = Config.StartingPickaxe,
+        Armor = Config.Armor[1].Name,
         Pets = {},
         EquippedPets = {},
-        Version = 1,
+        Version = 2,
     }
 end
 
@@ -28,9 +28,13 @@ local function sanitize(data)
     d.BackpackAmount = math.clamp(math.floor(tonumber(data.BackpackAmount) or 0), 0, 1000000)
     d.BackpackCapacity = math.clamp(math.floor(tonumber(data.BackpackCapacity) or Config.StartingBackpack), Config.StartingBackpack, 1000000)
     d.Pickaxe = Config.Pickaxes[data.Pickaxe] and data.Pickaxe or Config.StartingPickaxe
+    d.Armor = "Cloth"
+    for _, armor in ipairs(Config.Armor) do
+        if armor.Name == data.Armor then d.Armor = armor.Name break end
+    end
     d.Pets = type(data.Pets) == "table" and data.Pets or {}
     d.EquippedPets = type(data.EquippedPets) == "table" and data.EquippedPets or {}
-    d.Version = 1
+    d.Version = 2
     return d
 end
 
@@ -44,24 +48,15 @@ function Service.Load(player)
     return data
 end
 
-function Service.Get(player)
-    return sessions[player]
-end
-
-function Service.MarkDirty(player)
-    dirty[player] = true
-end
+function Service.Get(player) return sessions[player] end
+function Service.MarkDirty(player) dirty[player] = true end
 
 function Service.Save(player)
     local data = sessions[player]
     if not data then return false end
     local key = "player_" .. player.UserId
     local snapshot = sanitize(data)
-    local success, err = pcall(function()
-        Store:UpdateAsync(key, function()
-            return snapshot
-        end)
-    end)
+    local success, err = pcall(function() Store:UpdateAsync(key, function() return snapshot end) end)
     if success then dirty[player] = false else warn("Data save failed for", player.UserId, err) end
     return success
 end
@@ -72,8 +67,5 @@ function Service.Release(player)
     dirty[player] = nil
 end
 
-function Service.IsDirty(player)
-    return dirty[player] == true
-end
-
+function Service.IsDirty(player) return dirty[player] == true end
 return Service
