@@ -10,8 +10,8 @@ function Service.Take(player, egg)
  local name=egg:GetAttribute("EggType") or egg.Name; if not Config.HatchEggs[name] then return false,"This egg cannot be hatched" end
  egg:SetAttribute("Taken",true); egg.Transparency=1; egg.CanTouch=false; egg.CanQuery=false
  carrying[player]={name=name,egg=egg}
- local carried=Instance.new("Part"); carried.Name="CarriedEgg"; carried.Shape=Enum.PartType.Ball; carried.Size=Vector3.new(3.2,3.8,3.2); carried.Material=Enum.Material.SmoothPlastic; carried.Color=egg.Color; carried.CanCollide=false; carried.CanTouch=false; carried.CanQuery=false; carried.Massless=true; carried.CFrame=r.CFrame*CFrame.new(0,3.2,-1.2); carried.Parent=player.Character
- local weld=Instance.new("WeldConstraint"); weld.Part0=r; weld.Part1=carried; weld.Parent=carried
+ local carried=Instance.new("Part"); carried.Name="CarriedEgg"; carried.Shape=Enum.PartType.Ball; carried.Size=Vector3.new(3.2,3.8,3.2); carried.Material=Enum.Material.SmoothPlastic; carried.Color=egg.Color; carried.CanCollide=false; carried.CanTouch=false; carried.CanQuery=false; carried.Massless=true; carried.CFrame=r.CFrame*CFrame.new(0,3.1,-1.5); carried.Parent=player.Character
+ local weld=Instance.new("Weld"); weld.Name="EggCarryWeld"; weld.Part0=r; weld.Part1=carried; weld.C0=CFrame.new(0,3.1,-1.5); weld.Parent=carried
  return true,name
 end
 function Service.HatchAtBase(player, pad)
