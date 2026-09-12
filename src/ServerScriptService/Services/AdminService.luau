@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local MessagingService = game:GetService("MessagingService")
 local HttpService = game:GetService("HttpService")
 local Data = require(script.Parent.PlayerDataService)
+local EggSpawner = require(script.Parent.EggSpawner)
 local Service = {}
 local TOPIC = "EggMiner_Admin_v1"
 local ADMIN_USERNAMES = { ["titomodaga137"] = true }
@@ -28,6 +29,13 @@ local function applyGlobal(payload)
     end
     if payload.kind == "givePet" then
         for _,player in ipairs(Players:GetPlayers()) do Service.GivePet(player,payload.petName,payload.rarity,payload.multiplier) end; return "givePet",payload.petName
+    end
+    if payload.kind == "spawnEgg" then
+        local zone=tostring(payload.zone or "Forest")
+        local count=math.clamp(math.floor(tonumber(payload.count) or 1),1,20)
+        local spawned=0
+        for _=1,count do if EggSpawner.SpawnOne(zone,true) then spawned+=1 end end
+        return "spawnEgg",zone..":"..tostring(spawned)
     end
 end
 function Service.PublishGlobal(kind,data)
