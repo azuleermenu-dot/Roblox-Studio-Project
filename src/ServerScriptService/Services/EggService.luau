@@ -10,6 +10,10 @@ local function root(p)
     return c and c:FindFirstChild("HumanoidRootPart")
 end
 
+local function setCarrying(player,value)
+    player:SetAttribute("CarryingEgg",value==true)
+end
+
 local function attachEgg(player, name, color)
     local r=root(player)
     if not r then return false end
@@ -34,6 +38,7 @@ function Service.Take(player, egg)
         EggSpawner.Restore(egg)
         return false,"Could not carry egg"
     end
+    setCarrying(player,true)
     return true,name
 end
 
@@ -42,18 +47,21 @@ function Service.Steal(victim, thief)
     if not state or carrying[thief] then return false,"Steal failed" end
     local tr=root(thief)
     local vr=root(victim)
-    if not tr or not vr or (tr.Position-vr.Position).Magnitude>Config.Combat.HitRange + 2 then return false,"Too far away" end
+    if not tr or not vr or (tr.Position-vr.Position)>Config.Combat.HitRange + 2 then return false,"Too far away" end
 
     local oldCarried=victim.Character and victim.Character:FindFirstChild("CarriedEgg")
     if oldCarried then oldCarried:Destroy() end
     carrying[victim]=nil
+    setCarrying(victim,false)
     carrying[thief]={name=state.name,egg=state.egg,color=state.color}
     if not attachEgg(thief,state.name,state.color) then
         carrying[thief]=nil
         carrying[victim]=state
         attachEgg(victim,state.name,state.color)
-        return false,"Steal failed" 
+        setCarrying(victim,true)
+        return false,"Steal failed"
     end
+    setCarrying(thief,true)
     return true,state.name
 end
 
@@ -65,7 +73,7 @@ function Service.HatchAtBase(player,pad)
     local petService=require(script.Parent.PetService)
     local pet,err=petService.Hatch(player,state.name)
     if not pet then return false,err or "Could not hatch" end
-    local egg=state.egg; carrying[player]=nil
+    local egg=state.egg; carrying[player]=nil; setCarrying(player,false)
     local carried=player.Character and player.Character:FindFirstChild("CarriedEgg"); if carried then carried:Destroy() end
     if egg and egg.Parent then
         local zone=egg:GetAttribute("Zone")
@@ -80,6 +88,7 @@ function Service.IsCarrying(player) return carrying[player]~=nil end
 local function clear(p)
     local state=carrying[p]
     carrying[p]=nil
+    setCarrying(p,false)
     local c=p.Character and p.Character:FindFirstChild("CarriedEgg"); if c then c:Destroy() end
     if state and state.egg and state.egg.Parent then
         local zone=state.egg:GetAttribute("Zone")
