@@ -71,9 +71,8 @@ function AnimationClient.HatchCinematic(pet)
     local folder=Instance.new("Folder"); folder.Name="HatchCinematic"; folder.Parent=workspace
     local base=root.Position+Vector3.new(0,3.2,0)
     local egg=Instance.new("Part"); egg.Name="HatchingEgg"; egg.Shape=Enum.PartType.Ball; egg.Size=Vector3.new(4.4,5.4,4.4); egg.Position=base; egg.Anchored=true; egg.CanCollide=false; egg.CanTouch=false; egg.CanQuery=false; egg.Material=Enum.Material.SmoothPlastic; egg.Color=Color3.fromRGB(190,110,255); egg.Parent=folder
-    local light=Instance.new("PointLight"); light.Color=Color3.fromRGB(190,110,255); light.Range=12; light.Brightness=2; light.Parent=egg
-    local ring=Instance.new("Part"); ring.Shape=Enum.PartType.Cylinder; ring.Size=Vector3.new(.15,5,5); ring.CFrame=CFrame.new(base-Vector3.new(0,2.4,0))*CFrame.Angles(0,0,math.rad(90)); ring.Anchored=true; ring.CanCollide=false; ring.CanTouch=false; ring.CanQuery=false; ring.Material=Enum.Material.Neon; ring.Color=Color3.fromRGB(190,110,255); ring.Transparency=.25; ring.Parent=folder
-
+    local light=Instance.new("PointLight"); light.Color=egg.Color; light.Range=12; light.Brightness=2; light.Parent=egg
+    local ring=Instance.new("Part"); ring.Shape=Enum.PartType.Cylinder; ring.Size=Vector3.new(.15,5,5); ring.CFrame=CFrame.new(base-Vector3.new(0,2.4,0))*CFrame.Angles(0,0,math.rad(90)); ring.Anchored=true; ring.CanCollide=false; ring.CanTouch=false; ring.CanQuery=false; ring.Material=Enum.Material.Neon; ring.Color=egg.Color; ring.Transparency=.25; ring.Parent=folder
     task.wait(.12)
     for i=1,3 do
         TweenService:Create(egg,TweenInfo.new(.10,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),{CFrame=egg.CFrame*CFrame.Angles(0,0,math.rad(i%2==0 and -12 or 12))}):Play()
@@ -86,16 +85,29 @@ function AnimationClient.HatchCinematic(pet)
     TweenService:Create(egg,TweenInfo.new(.28,Enum.EasingStyle.Back,Enum.EasingDirection.In),{Size=Vector3.new(5.8,7.1,5.8),Transparency=1}):Play()
     TweenService:Create(light,TweenInfo.new(.25),{Brightness=0,Range=18}):Play()
     TweenService:Create(ring,TweenInfo.new(.5,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=Vector3.new(.15,18,18),Transparency=1}):Play()
-    burst(base,Color3.fromRGB(200,115,255),26)
+    burst(base,egg.Color,26)
     task.wait(.28)
     if pet and type(pet)=="table" then
-        local reveal=Instance.new("Part"); reveal.Name="PetReveal"; reveal.Shape=Enum.PartType.Ball; reveal.Size=Vector3.new(2.5,2.5,2.5); reveal.Position=base+Vector3.new(0,-.4,0); reveal.Anchored=true; reveal.CanCollide=false; reveal.CanTouch=false; reveal.CanQuery=false; reveal.Material=Enum.Material.Neon; reveal.Color=Color3.fromRGB(255,215,100); reveal.Transparency=.15; reveal.Parent=folder
-        local revealLight=Instance.new("PointLight"); revealLight.Color=reveal.Color; revealLight.Range=10; revealLight.Brightness=3; revealLight.Parent=reveal
-        TweenService:Create(reveal,TweenInfo.new(.5,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Size=Vector3.new(4,4,4),Transparency=1}):Play()
-        TweenService:Create(revealLight,TweenInfo.new(.45),{Brightness=0}):Play()
+        local revealFolder=Instance.new("Folder"); revealFolder.Name="RevealPet"; revealFolder.Parent=folder
+        local revealPet=pet
+        local temp=createPet -- resolved below after function definition
+        if temp then
+            local model=temp(revealPet,99,revealFolder)
+            if model then
+                model:PivotTo(CFrame.new(base+Vector3.new(0,-.4,0)))
+                for _,d in ipairs(model:GetDescendants()) do
+                    if d:IsA("BasePart") then d.Transparency=.05 end
+                end
+                task.delay(.7,function()
+                    if model and model.Parent then
+                        for _,d in ipairs(model:GetDescendants()) do if d:IsA("BasePart") then TweenService:Create(d,TweenInfo.new(.25),{Transparency=1}):Play() end end
+                    end
+                end)
+            end
+        end
         burst(base,Color3.fromRGB(255,220,110),18)
     end
-    Debris:AddItem(folder,1)
+    Debris:AddItem(folder,1.4)
     hatchBusy=false
 end
 
@@ -109,15 +121,75 @@ end
 local petColors={
  ["Tiny Mouse"]=Color3.fromRGB(185,185,195),["Blue Bunny"]=Color3.fromRGB(80,170,255),["Crystal Fox"]=Color3.fromRGB(120,240,255),["Golden Dragon"]=Color3.fromRGB(255,195,55),["Cosmic Phoenix"]=Color3.fromRGB(185,90,255),["Crystal Bunny"]=Color3.fromRGB(90,220,255),["Prism Dragon"]=Color3.fromRGB(230,100,255),["Golden Bunny"]=Color3.fromRGB(255,215,70),["Sun Phoenix"]=Color3.fromRGB(255,145,50),["Sand Fox"]=Color3.fromRGB(225,170,90),["Scarab"]=Color3.fromRGB(80,190,150),["Golden Sphinx"]=Color3.fromRGB(255,205,65),["Snow Bunny"]=Color3.fromRGB(215,245,255),["Frost Fox"]=Color3.fromRGB(120,220,255),["Ice Phoenix"]=Color3.fromRGB(130,235,255),["Ember Cub"]=Color3.fromRGB(255,105,45),["Magma Dragon"]=Color3.fromRGB(235,70,35),["Inferno Titan"]=Color3.fromRGB(255,60,25),
 }
-local function createPet(pet,index)
-    local model=Instance.new("Model"); model.Name="Pet_"..index
-    local body=Instance.new("Part"); body.Name="Body"; body.Shape=Enum.PartType.Ball; body.Size=Vector3.new(2.2,2.2,2.2); body.Color=petColors[pet.Name] or Color3.fromRGB(150,200,255); body.Material=Enum.Material.SmoothPlastic; body.Anchored=true; body.CanCollide=false; body.CanTouch=false; body.CanQuery=false; body.Parent=model
-    for n,x in ipairs({-.42,.42}) do local eye=Instance.new("Part"); eye.Name="Eye"..n; eye.Shape=Enum.PartType.Ball; eye.Size=Vector3.new(.28,.28,.28); eye.Color=Color3.new(0,0,0); eye.Anchored=true; eye.CanCollide=false; eye.CanTouch=false; eye.CanQuery=false; eye.CFrame=CFrame.new(x,.35,-.95); eye.Parent=model end
-    local light=Instance.new("PointLight"); light.Range=5; light.Brightness=.6; light.Color=body.Color; light.Parent=body
-    local label=Instance.new("BillboardGui"); label.Size=UDim2.fromOffset(130,28); label.StudsOffset=Vector3.new(0,1.8,0); label.AlwaysOnTop=true; label.Parent=body
-    local text=Instance.new("TextLabel"); text.Size=UDim2.fromScale(1,1); text.BackgroundTransparency=1; text.Text=pet.Name; text.TextScaled=true; text.Font=Enum.Font.GothamBold; text.TextColor3=Color3.new(1,1,1); text.TextStrokeTransparency=.25; text.Parent=label
-    model.PrimaryPart=body; model.Parent=petFolder; return model
+local function part(model,name,size,color,cf,shape,material)
+    local p=Instance.new("Part"); p.Name=name; p.Size=size; p.Color=color; p.CFrame=cf or CFrame.new(); p.Shape=shape or Enum.PartType.Block; p.Material=material or Enum.Material.SmoothPlastic; p.Anchored=true; p.CanCollide=false; p.CanTouch=false; p.CanQuery=false; p.Massless=true; p.Parent=model; return p
 end
+local function orb(model,name,size,color,pos,material) return part(model,name,size,color,CFrame.new(pos),Enum.PartType.Ball,material) end
+local function petPiece(model,name,size,color,pos,angles,material)
+    return part(model,name,size,color,CFrame.new(pos)*CFrame.Angles(math.rad(angles and angles[1] or 0),math.rad(angles and angles[2] or 0),math.rad(angles and angles[3] or 0)),Enum.PartType.Block,material)
+end
+local function addEye(model,x,z)
+    return orb(model,"Eye",Vector3.new(.24,.30,.16),Color3.new(0,0,0),Vector3.new(x,.35,z),Enum.Material.Neon)
+end
+
+local function createPet(pet,index,parentOverride)
+    local model=Instance.new("Model"); model.Name="Pet_"..index
+    local color=petColors[pet.Name] or Color3.fromRGB(150,200,255)
+    local lower=string.lower(pet.Name or "")
+    local bodySize=Vector3.new(2.2,2.2,2.2)
+    if string.find(lower,"dragon") or string.find(lower,"phoenix") or string.find(lower,"titan") then bodySize=Vector3.new(2.5,2.3,2.5) end
+    local body=orb(model,"Body",bodySize,color,Vector3.new(0,0,0),Enum.Material.SmoothPlastic)
+    model.PrimaryPart=body
+
+    if string.find(lower,"mouse") then
+        orb(model,"EarL",Vector3.new(.72,.72,.30),color,Vector3.new(-.72,.78,.02))
+        orb(model,"EarR",Vector3.new(.72,.72,.30),color,Vector3.new(.72,.78,.02))
+        orb(model,"Tail",Vector3.new(.42,.42,1.25),color,Vector3.new(0,-.15,1.25),Enum.Material.SmoothPlastic)
+    elseif string.find(lower,"bunny") then
+        petPiece(model,"EarL",Vector3.new(.48,1.45,.48),color,Vector3.new(-.48,1.15,0),{0,0,-8})
+        petPiece(model,"EarR",Vector3.new(.48,1.45,.48),color,Vector3.new(.48,1.15,0),{0,0,8})
+        orb(model,"Tail",Vector3.new(.62,.62,.62),color,Vector3.new(0,-.1,1.05))
+    elseif string.find(lower,"fox") or string.find(lower,"cub") then
+        petPiece(model,"EarL",Vector3.new(.55,.75,.55),color,Vector3.new(-.68,.82,0),{0,0,-25})
+        petPiece(model,"EarR",Vector3.new(.55,.75,.55),color,Vector3.new(.68,.82,0),{0,0,25})
+        petPiece(model,"Tail",Vector3.new(.55,.55,1.7),color,Vector3.new(0,.05,1.25),{20,0,0})
+        orb(model,"TailTip",Vector3.new(.62,.62,.62),Color3.new(1,1,1),Vector3.new(0,.35,2.02))
+    elseif string.find(lower,"dragon") then
+        petPiece(model,"HornL",Vector3.new(.30,.85,.30),Color3.fromRGB(255,235,160),Vector3.new(-.48,1.15,-.05),{0,0,-15},Enum.Material.Neon)
+        petPiece(model,"HornR",Vector3.new(.30,.85,.30),Color3.fromRGB(255,235,160),Vector3.new(.48,1.15,-.05),{0,0,15},Enum.Material.Neon)
+        petPiece(model,"WingL",Vector3.new(1.15,.18,1.55),color,Vector3.new(-1.15,.25,.25),{0,0,-18})
+        petPiece(model,"WingR",Vector3.new(1.15,.18,1.55),color,Vector3.new(1.15,.25,.25),{0,0,18})
+        petPiece(model,"Tail",Vector3.new(.45,.45,1.8),color,Vector3.new(0,-.15,1.35),{25,0,0})
+    elseif string.find(lower,"phoenix") then
+        petPiece(model,"WingL",Vector3.new(1.25,.20,1.75),color,Vector3.new(-1.15,.35,.1),{0,0,-28},Enum.Material.Neon)
+        petPiece(model,"WingR",Vector3.new(1.25,.20,1.75),color,Vector3.new(1.15,.35,.1),{0,0,28},Enum.Material.Neon)
+        petPiece(model,"Crest",Vector3.new(.35,1.05,.35),color,Vector3.new(0,1.25,.15),{0,0,0},Enum.Material.Neon)
+        petPiece(model,"Tail",Vector3.new(.50,.50,1.8),color,Vector3.new(0,-.2,1.35),{25,0,0},Enum.Material.Neon)
+    elseif string.find(lower,"scarab") then
+        petPiece(model,"Shell",Vector3.new(2.7,.55,2.2),color,Vector3.new(0,.35,.15),{0,0,0},Enum.Material.Metal)
+        petPiece(model,"LegL",Vector3.new(1.4,.16,.20),color,Vector3.new(-1.0,-.45,0),{0,0,-15})
+        petPiece(model,"LegR",Vector3.new(1.4,.16,.20),color,Vector3.new(1.0,-.45,0),{0,0,15})
+    elseif string.find(lower,"sphinx") then
+        petPiece(model,"EarL",Vector3.new(.50,.70,.50),color,Vector3.new(-.62,.82,0),{0,0,-15})
+        petPiece(model,"EarR",Vector3.new(.50,.70,.50),color,Vector3.new(.62,.82,0),{0,0,15})
+        petPiece(model,"Crown",Vector3.new(1.3,.35,.75),Color3.fromRGB(255,235,120),Vector3.new(0,1.15,-.05),nil,Enum.Material.Neon)
+        petPiece(model,"Tail",Vector3.new(.45,.45,1.5),color,Vector3.new(0,-.15,1.25),{25,0,0})
+    else
+        orb(model,"Tail",Vector3.new(.55,.55,.55),color,Vector3.new(0,-.15,1.05))
+    end
+
+    addEye(model,-.42,-.95); addEye(model,.42,-.95)
+    orb(model,"Nose",Vector3.new(.25,.18,.16),Color3.fromRGB(35,25,25),Vector3.new(0,.02,-1.04))
+    local light=Instance.new("PointLight"); light.Range=5; light.Brightness=.7; light.Color=color; light.Parent=body
+    if pet.Rarity=="Legendary" or pet.Rarity=="Mythic" then
+        local glow=Instance.new("Highlight"); glow.FillColor=color; glow.FillTransparency=.72; glow.OutlineColor=Color3.fromRGB(255,245,180); glow.OutlineTransparency=.05; glow.DepthMode=Enum.HighlightDepthMode.AlwaysOnTop; glow.Parent=model
+    end
+    local label=Instance.new("BillboardGui"); label.Size=UDim2.fromOffset(150,28); label.StudsOffset=Vector3.new(0,1.9,0); label.AlwaysOnTop=true; label.Parent=body
+    local text=Instance.new("TextLabel"); text.Size=UDim2.fromScale(1,1); text.BackgroundTransparency=1; text.Text=pet.Name; text.TextScaled=true; text.Font=Enum.Font.GothamBold; text.TextColor3=Color3.new(1,1,1); text.TextStrokeTransparency=.2; text.Parent=label
+    model.Parent=parentOverride or petFolder
+    return model
+end
+
 function AnimationClient.UpdatePets(pets)
     if petFolder then petFolder:Destroy() end
     petFolder=Instance.new("Folder"); petFolder.Name="LocalPetFollowers"; petFolder.Parent=workspace; petVisuals={}
