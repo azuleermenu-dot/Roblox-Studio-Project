@@ -2,39 +2,23 @@
   "name": "EggMinerSimulator",
   "tree": {
     "$className": "DataModel",
-    "ReplicatedStorage": {
-      "$className": "ReplicatedStorage",
-      "Remotes": {"$className": "Folder"},
-      "Shared": {
-        "$className": "Folder",
-        "GameConfig": {"$path": "src/ReplicatedStorage/Shared/GameConfig.luau"}
-      }
-    },
+    "ReplicatedStorage": {"$className":"ReplicatedStorage","Remotes":{"$className":"Folder"},"Shared":{"$className":"Folder","GameConfig":{"$path":"src/ReplicatedStorage/Shared/GameConfig.luau"}}},
     "ServerScriptService": {
-      "$className": "ServerScriptService",
-      "Services": {
-        "$className": "Folder",
-        "PlayerDataService": {"$path": "src/ServerScriptService/Services/PlayerDataService.luau"},
-        "MiningService": {"$path": "src/ServerScriptService/Services/MiningService.luau"},
-        "UpgradeService": {"$path": "src/ServerScriptService/Services/UpgradeService.luau"},
-        "PetService": {"$path": "src/ServerScriptService/Services/PetService.luau"},
-        "EggService": {"$path": "src/ServerScriptService/Services/EggService.luau"},
-        "MapBuilder": {"$path": "src/ServerScriptService/Services/MapBuilder.luau"}
+      "$className":"ServerScriptService",
+      "Services":{
+        "$className":"Folder",
+        "PlayerDataService":{"$path":"src/ServerScriptService/Services/PlayerDataService.luau"},
+        "MiningService":{"$path":"src/ServerScriptService/Services/MiningService.luau"},
+        "UpgradeService":{"$path":"src/ServerScriptService/Services/UpgradeService.luau"},
+        "PetService":{"$path":"src/ServerScriptService/Services/PetService.luau"},
+        "EggService":{"$path":"src/ServerScriptService/Services/EggService.luau"},
+        "EggSpawner":{"$path":"src/ServerScriptService/Services/EggSpawner.luau"},
+        "MapBuilder":{"$path":"src/ServerScriptService/Services/MapBuilder.luau"}
       },
-      "Main": {"$path": "src/ServerScriptService/Main.server.luau"}
+      "Main":{"$path":"src/ServerScriptService/Main.server.luau"}
     },
-    "StarterPlayer": {
-      "$className": "StarterPlayer",
-      "StarterPlayerScripts": {
-        "$className": "StarterPlayerScripts",
-        "GameClient": {"$path": "src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau"},
-        "AnimationClient": {"$path": "src/StarterPlayer/StarterPlayerScripts/AnimationClient.client.luau"}
-      }
-    },
-    "ServerStorage": {
-      "$className": "ServerStorage",
-      "PetModels": {"$className": "Folder"}
-    },
-    "Workspace": {"$className": "Workspace"}
+    "StarterPlayer":{"$className":"StarterPlayer","StarterPlayerScripts":{"$className":"StarterPlayerScripts","GameClient":{"$path":"src/StarterPlayer/StarterPlayerScripts/GameClient.client.luau"},"AnimationClient":{"$path":"src/StarterPlayer/StarterPlayerScripts/AnimationClient.client.luau"}}},
+    "ServerStorage":{"$className":"ServerStorage","PetModels":{"$className":"Folder"}},
+    "Workspace":{"$className":"Workspace"}
   }
 }
