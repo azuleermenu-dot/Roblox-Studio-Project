@@ -9,6 +9,7 @@ Config.HatchCost = 0
 Config.MaxEquippedPets = 3
 Config.MiningCooldown = 0.12
 Config.AutosaveSeconds = 60
+Config.NewPlayerProtectionSeconds = 300
 
 Config.Pickaxes = {
     Wooden = {Power = 1, Capacity = 25, Cost = 0},
@@ -16,6 +17,23 @@ Config.Pickaxes = {
     Iron = {Power = 7, Capacity = 100, Cost = 500},
     Gold = {Power = 15, Capacity = 250, Cost = 2500},
     Diamond = {Power = 35, Capacity = 500, Cost = 10000},
+}
+
+-- Armor makes egg carriers harder to stagger. The one-tier gap rule and
+-- starter protection stop fresh players from being farmed by endgame players.
+Config.Armor = {
+    {Name="Cloth", DamageReduction=0, StaggerBonus=0, Cost=0},
+    {Name="Iron", DamageReduction=5, StaggerBonus=1, Cost=750},
+    {Name="Steel", DamageReduction=10, StaggerBonus=2, Cost=3000},
+    {Name="Diamond", DamageReduction=16, StaggerBonus=3, Cost=10000},
+}
+
+Config.Combat = {
+    HitRange=10,
+    HitCooldown=0.65,
+    BaseDamage=12,
+    BaseHitsToSteal=2,
+    MaxArmorGap=2,
 }
 
 Config.Resources = {
@@ -27,7 +45,6 @@ Config.Resources = {
 }
 
 Config.HatchEggs = {
-    -- Starter egg: intentionally limited to low-tier pets.
     BasicEgg = {Pets = {
         {Name="Tiny Mouse", Rarity="Common", Multiplier=1.2, Chance=70},
         {Name="Blue Bunny", Rarity="Uncommon", Multiplier=1.5, Chance=25},
