@@ -9,6 +9,7 @@ local miningBusy = false
 local petFolder
 local petVisuals = {}
 local eggBases = {}
+local hatchBusy = false
 
 local function getCharacter() return player.Character end
 local function getRoot() local c=getCharacter(); return c and c:FindFirstChild("HumanoidRootPart") end
@@ -56,6 +57,48 @@ local function burst(position,color,amount)
     Debris:AddItem(folder,.6)
 end
 function AnimationClient.HitFX(position,color) if position then burst(position,color or Color3.fromRGB(255,220,80),7) end end
+
+local function makeCrack(parent,cf,size)
+    local crack=Instance.new("Part"); crack.Name="Crack"; crack.Size=size or Vector3.new(.12,1.3,.08); crack.CFrame=cf; crack.Anchored=true; crack.CanCollide=false; crack.CanTouch=false; crack.CanQuery=false; crack.Material=Enum.Material.Neon; crack.Color=Color3.fromRGB(255,255,255); crack.Transparency=1; crack.Parent=parent
+    TweenService:Create(crack,TweenInfo.new(.18,Enum.EasingStyle.Quad),{Transparency=0}):Play()
+    return crack
+end
+
+function AnimationClient.HatchCinematic(pet)
+    if hatchBusy then return end
+    hatchBusy=true
+    local root=getRoot(); if not root then hatchBusy=false; return end
+    local folder=Instance.new("Folder"); folder.Name="HatchCinematic"; folder.Parent=workspace
+    local base=root.Position+Vector3.new(0,3.2,0)
+    local egg=Instance.new("Part"); egg.Name="HatchingEgg"; egg.Shape=Enum.PartType.Ball; egg.Size=Vector3.new(4.4,5.4,4.4); egg.Position=base; egg.Anchored=true; egg.CanCollide=false; egg.CanTouch=false; egg.CanQuery=false; egg.Material=Enum.Material.SmoothPlastic; egg.Color=Color3.fromRGB(190,110,255); egg.Parent=folder
+    local light=Instance.new("PointLight"); light.Color=Color3.fromRGB(190,110,255); light.Range=12; light.Brightness=2; light.Parent=egg
+    local ring=Instance.new("Part"); ring.Shape=Enum.PartType.Cylinder; ring.Size=Vector3.new(.15,5,5); ring.CFrame=CFrame.new(base-Vector3.new(0,2.4,0))*CFrame.Angles(0,0,math.rad(90)); ring.Anchored=true; ring.CanCollide=false; ring.CanTouch=false; ring.CanQuery=false; ring.Material=Enum.Material.Neon; ring.Color=Color3.fromRGB(190,110,255); ring.Transparency=.25; ring.Parent=folder
+
+    task.wait(.12)
+    for i=1,3 do
+        TweenService:Create(egg,TweenInfo.new(.10,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),{CFrame=egg.CFrame*CFrame.Angles(0,0,math.rad(i%2==0 and -12 or 12))}):Play()
+        task.wait(.10)
+    end
+    makeCrack(folder,egg.CFrame*CFrame.new(-.8,.4,-2.05)*CFrame.Angles(0,0,math.rad(18)))
+    makeCrack(folder,egg.CFrame*CFrame.new(.7,-.3,-2.05)*CFrame.Angles(0,0,math.rad(-28)))
+    makeCrack(folder,egg.CFrame*CFrame.new(0,.1,-2.08)*CFrame.Angles(0,0,math.rad(90)),Vector3.new(.12,1.7,.08))
+    task.wait(.35)
+    TweenService:Create(egg,TweenInfo.new(.28,Enum.EasingStyle.Back,Enum.EasingDirection.In),{Size=Vector3.new(5.8,7.1,5.8),Transparency=1}):Play()
+    TweenService:Create(light,TweenInfo.new(.25),{Brightness=0,Range=18}):Play()
+    TweenService:Create(ring,TweenInfo.new(.5,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Size=Vector3.new(.15,18,18),Transparency=1}):Play()
+    burst(base,Color3.fromRGB(200,115,255),26)
+    task.wait(.28)
+    if pet and type(pet)=="table" then
+        local reveal=Instance.new("Part"); reveal.Name="PetReveal"; reveal.Shape=Enum.PartType.Ball; reveal.Size=Vector3.new(2.5,2.5,2.5); reveal.Position=base+Vector3.new(0,-.4,0); reveal.Anchored=true; reveal.CanCollide=false; reveal.CanTouch=false; reveal.CanQuery=false; reveal.Material=Enum.Material.Neon; reveal.Color=Color3.fromRGB(255,215,100); reveal.Transparency=.15; reveal.Parent=folder
+        local revealLight=Instance.new("PointLight"); revealLight.Color=reveal.Color; revealLight.Range=10; revealLight.Brightness=3; revealLight.Parent=reveal
+        TweenService:Create(reveal,TweenInfo.new(.5,Enum.EasingStyle.Back,Enum.EasingDirection.Out),{Size=Vector3.new(4,4,4),Transparency=1}):Play()
+        TweenService:Create(revealLight,TweenInfo.new(.45),{Brightness=0}):Play()
+        burst(base,Color3.fromRGB(255,220,110),18)
+    end
+    Debris:AddItem(folder,1)
+    hatchBusy=false
+end
+
 function AnimationClient.HatchFX()
     local root=getRoot(); if not root then return end
     burst(root.Position+Vector3.new(0,2,0),Color3.fromRGB(180,100,255),18)
