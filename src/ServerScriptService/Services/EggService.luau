@@ -10,6 +10,15 @@ local function root(p)
     return c and c:FindFirstChild("HumanoidRootPart")
 end
 
+local function attachEgg(player, name, color)
+    local r=root(player)
+    if not r then return false end
+    local carried=Instance.new("Part")
+    carried.Name="CarriedEgg"; carried.Shape=Enum.PartType.Ball; carried.Size=Vector3.new(3.2,3.8,3.2); carried.Material=Enum.Material.SmoothPlastic; carried.Color=color; carried.CanCollide=false; carried.CanTouch=false; carried.CanQuery=false; carried.Massless=true; carried.CFrame=r.CFrame*CFrame.new(0,3.1,-1.5); carried.Parent=player.Character
+    local weld=Instance.new("Weld"); weld.Name="EggCarryWeld"; weld.Part0=r; weld.Part1=carried; weld.C0=CFrame.new(0,3.1,-1.5); weld.Parent=carried
+    return true
+end
+
 function Service.Take(player, egg)
     if typeof(egg)~="Instance" or not egg:IsDescendantOf(workspace:FindFirstChild("StealEggs")) or carrying[player] then return false,"Find an egg first" end
     local r=root(player)
@@ -19,11 +28,33 @@ function Service.Take(player, egg)
     egg:SetAttribute("Taken",true); egg.Transparency=1; egg.CanTouch=false; egg.CanQuery=false
     local stripe=egg:FindFirstChild("Stripe"); if stripe then stripe.Transparency=1 end
     local light=egg:FindFirstChild("EggGlow"); if light then light.Brightness=0 end
-    carrying[player]={name=name,egg=egg}
-    local carried=Instance.new("Part")
-    carried.Name="CarriedEgg"; carried.Shape=Enum.PartType.Ball; carried.Size=Vector3.new(3.2,3.8,3.2); carried.Material=Enum.Material.SmoothPlastic; carried.Color=egg.Color; carried.CanCollide=false; carried.CanTouch=false; carried.CanQuery=false; carried.Massless=true; carried.CFrame=r.CFrame*CFrame.new(0,3.1,-1.5); carried.Parent=player.Character
-    local weld=Instance.new("Weld"); weld.Name="EggCarryWeld"; weld.Part0=r; weld.Part1=carried; weld.C0=CFrame.new(0,3.1,-1.5); weld.Parent=carried
+    carrying[player]={name=name,egg=egg,color=egg.Color}
+    if not attachEgg(player,name,egg.Color) then
+        carrying[player]=nil
+        EggSpawner.Restore(egg)
+        return false,"Could not carry egg"
+    end
     return true,name
+end
+
+function Service.Steal(victim, thief)
+    local state=carrying[victim]
+    if not state or carrying[thief] then return false,"Steal failed" end
+    local tr=root(thief)
+    local vr=root(victim)
+    if not tr or not vr or (tr.Position-vr.Position).Magnitude>Config.Combat.HitRange + 2 then return false,"Too far away" end
+
+    local oldCarried=victim.Character and victim.Character:FindFirstChild("CarriedEgg")
+    if oldCarried then oldCarried:Destroy() end
+    carrying[victim]=nil
+    carrying[thief]={name=state.name,egg=state.egg,color=state.color}
+    if not attachEgg(thief,state.name,state.color) then
+        carrying[thief]=nil
+        carrying[victim]=state
+        attachEgg(victim,state.name,state.color)
+        return false,"Steal failed" 
+    end
+    return true,state.name
 end
 
 function Service.HatchAtBase(player,pad)
