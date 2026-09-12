@@ -1,8 +1,11 @@
 local Players=game:GetService("Players")
 local UserInputService=game:GetService("UserInputService")
 local ReplicatedStorage=game:GetService("ReplicatedStorage")
-local player=Players.LocalPlayer; local remotes=ReplicatedStorage:WaitForChild("Remotes")
+local player=Players.LocalPlayer
+local remotes=ReplicatedStorage:WaitForChild("Remotes")
 local Mine=remotes:WaitForChild("MineResource"); local Sell=remotes:WaitForChild("Sell"); local Upgrade=remotes:WaitForChild("UpgradePickaxe"); local TakeEgg=remotes:WaitForChild("TakeEgg"); local Hatch=remotes:WaitForChild("HatchCarriedEgg"); local State=remotes:WaitForChild("StateUpdate"); local Notice=remotes:WaitForChild("Notification")
+local Anim=require(script.Parent:WaitForChild("AnimationClient"))
+
 local gui=Instance.new("ScreenGui"); gui.Name="EggMinerUI"; gui.ResetOnSpawn=false; gui.Parent=player:WaitForChild("PlayerGui")
 local function label(parent,text,size,pos) local x=Instance.new("TextLabel"); x.BackgroundTransparency=.2; x.TextScaled=true; x.Font=Enum.Font.GothamBold; x.Text=text; x.Size=size; x.Position=pos; x.Parent=parent; return x end
 local function button(parent,text,size,pos) local b=Instance.new("TextButton"); b.TextScaled=true; b.Font=Enum.Font.GothamBold; b.Text=text; b.Size=size; b.Position=pos; b.AutoButtonColor=true; b.Parent=parent; return b end
@@ -18,10 +21,21 @@ end
 local function interact(target)
  if not target then return end
  local resources=workspace:FindFirstChild("MiningResources"); local eggs=workspace:FindFirstChild("StealEggs")
- if resources and target:IsDescendantOf(resources) then Mine:FireServer(target)
- elseif eggs and target:IsDescendantOf(eggs) then TakeEgg:FireServer(target) end
+ if resources and target:IsDescendantOf(resources) then
+  Anim.MineSwing()
+  Anim.HitFX(target.Position,Color3.fromRGB(255,215,90))
+  Mine:FireServer(target)
+ elseif eggs and target:IsDescendantOf(eggs) then
+  TakeEgg:FireServer(target)
+ end
 end
 UserInputService.InputBegan:Connect(function(input,processed) if processed then return end; if input.UserInputType==Enum.UserInputType.MouseButton1 then interact(player:GetMouse().Target) elseif input.UserInputType==Enum.UserInputType.Touch then interact(targetAt(input)) end end)
 sell.Activated:Connect(function() Sell:FireServer() end); upgrade.Activated:Connect(function() Upgrade:FireServer() end); hatch.Activated:Connect(function() Hatch:FireServer() end)
-State.OnClientEvent:Connect(function(s) coins.Text="Coins: "..tostring(s.Coins or 0); bag.Text="Backpack: "..tostring(s.BackpackAmount or 0).."/"..tostring(s.BackpackCapacity or 0); pet.Text=string.format("Pets: x%.2f",tonumber(s.PetMultiplier) or 1); carry.Text=s.Carrying and "Egg: CARRYING 🥚" or "Egg: NONE"; upgrade.Text="UPGRADE "..tostring(s.Pickaxe or "Wooden") end)
-Notice.OnClientEvent:Connect(notify)
+State.OnClientEvent:Connect(function(s)
+ coins.Text="Coins: "..tostring(s.Coins or 0); bag.Text="Backpack: "..tostring(s.BackpackAmount or 0).."/"..tostring(s.BackpackCapacity or 0); pet.Text=string.format("Pets: x%.2f",tonumber(s.PetMultiplier) or 1); carry.Text=s.Carrying and "Egg: CARRYING 🥚" or "Egg: NONE"; upgrade.Text="UPGRADE "..tostring(s.Pickaxe or "Wooden")
+ Anim.UpdatePets(s.EquippedPets)
+end)
+Notice.OnClientEvent:Connect(function(t)
+ notify(t)
+ if string.find(t,"Hatched ",1,true) then Anim.HatchFX() end
+end)
